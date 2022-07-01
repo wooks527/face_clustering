@@ -24,6 +24,12 @@ def get_args() -> argparse.Namespace:
         help="source path",
     )
     parser.add_argument(
+        "--detector",
+        type=str,
+        default="hog",
+        help="Face Detector (e.g. hog, cnn, harr)",
+    )
+    parser.add_argument(
         "--cps",
         type=int,
         default=1,
@@ -42,7 +48,7 @@ if __name__ == "__main__":
     args = get_args()
 
     # Detect faces
-    fd = FaceDetector()
+    fd = FaceDetector(model=args.detector)
     if not os.path.isfile(f"{args.out_dir}/face_bboxes.pickle"):  # Detect faces
         frame_ids, face_bboxes = fd.detect(args.src_path, args.out_dir, args.cps)
         fd.save_face_bboxes(args.out_dir, "face_bboxes.pickle")

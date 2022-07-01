@@ -45,3 +45,9 @@ Start Clustering...
   - Face Detection: [face_recognition.face_locations](https://face-recognition.readthedocs.io/en/latest/face_recognition.html#face_recognition.api.face_locations) -> Hog + Linear SVM
   - Face Recognition: [face_recognition.face_encodings](https://face-recognition.readthedocs.io/en/latest/face_recognition.html#face_recognition.api.face_encodings) -> dlib.face_recognition_model_v1
   - Face Clustering: [sklearn.cluster.DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html)
+
+- [harr-dlib-DBSCAN](results/harr-dlib-DBSCAN/visualize_results.ipynb)
+
+  - Face Detection: [cv2.CascadeClassifier](https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html) -> Harr Cascade Classifier
+  - Face Recognition: [face_recognition.face_encodings](https://face-recognition.readthedocs.io/en/latest/face_recognition.html#face_recognition.api.face_encodings) -> dlib.face_recognition_model_v1
+  - Face Clustering: [sklearn.cluster.DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html)

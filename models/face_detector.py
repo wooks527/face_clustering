@@ -10,7 +10,6 @@ import os
 import shutil
 import cv2
 import pickle
-import time
 import face_recognition as fr
 
 from tqdm import tqdm
@@ -19,8 +18,13 @@ from tqdm import tqdm
 class FaceDetector:
     """Detect faces."""
 
-    def __init__(self):
-        """Initialize instances."""
+    def __init__(self, model: str = "hog"):
+        """Initialize instances.
+
+        Args:
+            model: Face Detector (e.g. hog, cnn, harr)
+        """
+        self.model = model
         self.frame_ids = []
         self.face_bboxes = []
 
@@ -90,10 +94,25 @@ class FaceDetector:
                 continue
 
             frame_rgb = frame[:, :, ::-1]
-            face_locations = fr.face_locations(frame_rgb, model="hog")
+            if self.model in ("hog", "cnn"):  # dlib face detectors
+                face_locations = fr.face_locations(frame_rgb, model=self.model)
+            elif self.model == "harr":  # Harr cascade classifier
+                harr_cascade = cv2.CascadeClassifier(
+                    "models/haarcascade_frontalface_default.xml"
+                )
+                face_locations = harr_cascade.detectMultiScale(
+                    frame_rgb, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30)
+                )
+                if len(face_locations) != 0:
+                    # (top, right, bottom, left) = bbox
+                    face_locations = face_locations.tolist()
+                    for i, face_location in enumerate(face_locations):
+                        left, top = face_location[:2]
+                        right, bottom = left + face_location[2], top + face_location[3]
+                        face_locations[i] = (top, right, bottom, left)
+
             # print(f"frame ({frame_id}): {face_locations}")
             if not face_locations:
-                time.sleep(0.01)
                 pbar.update(1)
                 continue
 
@@ -103,7 +122,6 @@ class FaceDetector:
             img_path = f"{out_dir}/captured_imgs/frame-{frame_id}.jpg"
             cv2.imwrite(img_path, frame)
 
-            time.sleep(0.25)
             pbar.update(1)
 
         src.release()
