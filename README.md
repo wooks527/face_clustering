@@ -2,7 +2,39 @@
 
 ## Get Started
 
-(WIP)
+### Download Codes and Sample Video
+
+```
+git clone https://github.com/wooks527/face_clustering.git
+cd face_clustering
+```
+
+```
+youtube-dl https://www.youtube.com/watch?v=bUQj7Ng7PCs
+mv "I Ran - Pool Party Scene [La La Land _ 2016] - Movie Clip HD-bUQj7Ng7PCs.mkv" sample_video.mkv
+```
+
+### Face Clustering
+
+```
+python face_clustering.py --src-path sample_video.mkv \
+                          --cps 1 \
+                          --out-dir results/HOG-dlib-DBSCAN
+```
+```
+Video Information:
+- Resolution: 1920.0x1080.0, FPS: 29.0, CPS: 1
+
+Detect Faces...
+100%|██████████████████████████████████████████████████████████████████▋| 231/232 [05:10<00:01,  1.34s/it]
+
+Start Encoding...
+100%|████████████████████████████████████████████████████████████████████| 68/68 [00:04<00:00, 14.54it/s]
+
+Start Clustering...
+100%|████████████████████████████████████████████████████████████████████| 5/5 [00:02<00:00,  2.48it/s]
+```
+
 
 ## Results
 
