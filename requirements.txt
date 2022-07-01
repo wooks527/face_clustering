@@ -1,3 +1,7 @@
 face_recognition
 matplotlib
 tqdm
+pylint
+flake8==3.9.0
+black
+pre-commit

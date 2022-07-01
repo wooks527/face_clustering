@@ -1,24 +1,26 @@
 """Face classes.
 
 - Author: Hyunwook Kim
-- Contact: hyunwook@rippleai.co
+- Contact: wooks527@gmail.com
 """
 
 from typing import List, Tuple
-from sklearn.cluster import DBSCAN
-from tqdm import tqdm
 
-import cv2
-import face_recognition as fr
 import argparse
-import numpy as np
 import os
 import shutil
 import pickle
 import json
+import cv2
+import face_recognition as fr
+import numpy as np
+
+from sklearn.cluster import DBSCAN
+from tqdm import tqdm
 
 
 def get_args() -> argparse.Namespace:
+    """Parse arguments."""
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -43,7 +45,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-class Face():
+class Face:
     """Face class with frame, bounding box, encoding information."""
 
     def __init__(self, frame_id: int, bbox: List[Tuple], encoding) -> None:
@@ -59,7 +61,7 @@ class Face():
         self.encoding = encoding
 
 
-class FaceClustering():
+class FaceClustering:
     """Cluster faces using encoder and cluster methods."""
 
     def __init__(self) -> None:
@@ -70,11 +72,21 @@ class FaceClustering():
         """
         self.faces = []
 
-    def save(self, filename):
+    def save(self, filename: str) -> None:
+        """Save face embedding vectors.
+
+        Args:
+            filename: output filename of face embedding vectors
+        """
         with open(filename, "wb") as f:
             f.write(pickle.dumps(self.faces))
 
-    def load(self, filename):
+    def load(self, filename) -> None:
+        """Save face embedding vectors.
+
+        Args:
+            filename: filename of face embedding vectors
+        """
         with open(filename, "rb") as f:
             data = f.read()
             self.faces = pickle.loads(data)
@@ -96,7 +108,7 @@ class FaceClustering():
 
         self.faces = []
         width, height, fps = src.get(3), src.get(4), src.get(5)
-        skip_num = int(fps/cps)
+        skip_num = int(fps / cps)
         print("Video Information:")
         print(f"- Resolution: {width}x{height}, FPS: {fps}, CPS: {cps}")
 
@@ -126,9 +138,23 @@ class FaceClustering():
         src.release()
 
     def get_encodings(self) -> List:
+        """Generate list of face encoding vectors.
+
+        Returns:
+            list of face encoding vectors
+        """
         return [face.encoding for face in self.faces]
 
     def get_face_img_with_bbox(self, img: np.array, bbox: List[Tuple]) -> np.array:
+        """Generate face images with bounding boxes.
+
+        Args:
+            img: original image
+            bbox: face bounding box coordinates
+
+        Returns:
+            cropped face patch with face bounding box
+        """
         img_h, img_w = img.shape[:2]
         (top, right, bottom, left) = bbox
         bbox_w, bbox_h = right - left, bottom - top
@@ -142,7 +168,7 @@ class FaceClustering():
 
     def cluster(self, src_path: str, out_dir: str) -> None:
         """Cluster face encodings.
-        
+
         Args:
             src_path: source path (e.g. video file path)
             out_dir: directory of results
@@ -180,13 +206,18 @@ class FaceClustering():
                 img = cv2.imread(img_path)
                 bbox = self.faces[cur_idx].bbox
                 face_img = self.get_face_img_with_bbox(img, bbox)
-                face_img_fname = f"fid-{cluster_id}-{len(cluster_info[cluster_id])}-{cur_frame_id}.jpg"
+                face_img_fname = (
+                    f"fid-{cluster_id}"
+                    f"-{len(cluster_info[cluster_id])}"
+                    f"-{cur_frame_id}.jpg"
+                )
                 face_img_path = f"{out_dir}/clustered_imgs/{face_img_fname}"
                 cv2.imwrite(face_img_path, face_img)
 
                 prev_frame_id = cur_frame_id
 
-        with open(f"{out_dir}/clustered_results.json", "w") as f:
+        out_path = f"{out_dir}/clustered_results.json"
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(cluster_info, f, indent=4)
 
 
