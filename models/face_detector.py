@@ -13,6 +13,7 @@ import pickle
 import face_recognition as fr
 
 from tqdm import tqdm
+from models.retinaface import RetinaFace
 
 
 class FaceDetector:
@@ -55,13 +56,16 @@ class FaceDetector:
         with open(f"{out_dir}/{filename}", "wb") as f:
             f.write(pickle.dumps((self.frame_ids, self.face_bboxes)))
 
-    def detect(self, src_path: str, out_dir: str, cps: int) -> Tuple[List, List]:
+    def detect(
+        self, src_path: str, out_dir: str, cps: int, device: str
+    ) -> Tuple[List, List]:
         """Detect faces.
 
         Args:
             src_path: source path (e.g. video file path)
             cps: capture per second
             out_dir: directory of results
+            device: device for model
 
         Returns:
             frame_ids: extracted frame IDs
@@ -80,6 +84,15 @@ class FaceDetector:
         print("Video Information:")
         print(f"- Resolution: {int(width)}x{int(height)}, FPS: {fps}, CPS: {cps}")
 
+        if self.model == "harr":
+            model = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
+        elif self.model == "retinaface":
+            use_cpu = True if device == "cpu" else False
+            model = RetinaFace(cpu=use_cpu)
+        else:
+            assert False, "Not supported model."
+        print("\nLoad Model...")
+
         print("\nDetect Faces...")
         frame_ids, face_bboxes = [], []
         frame_id = 0
@@ -97,10 +110,7 @@ class FaceDetector:
             if self.model in ("hog", "cnn"):  # dlib face detectors
                 face_locations = fr.face_locations(frame_rgb, model=self.model)
             elif self.model == "harr":  # Harr cascade classifier
-                harr_cascade = cv2.CascadeClassifier(
-                    "models/haarcascade_frontalface_default.xml"
-                )
-                face_locations = harr_cascade.detectMultiScale(
+                face_locations = model.detectMultiScale(
                     frame_rgb, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30)
                 )
                 if len(face_locations) != 0:
@@ -110,6 +120,10 @@ class FaceDetector:
                         left, top = face_location[:2]
                         right, bottom = left + face_location[2], top + face_location[3]
                         face_locations[i] = (top, right, bottom, left)
+            elif self.model == "retinaface":
+                face_locations = model.detect(img_raw=frame)
+            else:
+                assert False, "Not supported model."
 
             # print(f"frame ({frame_id}): {face_locations}")
             if not face_locations:

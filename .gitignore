@@ -1,3 +1,6 @@
 *.mkv
+*.mp4
 *.jpg
+*.png
 *.pickle
+*.json
