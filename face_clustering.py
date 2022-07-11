@@ -36,6 +36,12 @@ def get_args() -> argparse.Namespace:
         help="capture per second",
     )
     parser.add_argument(
+        "--device",
+        type=str,
+        default="cuda",
+        help="device for model",
+    )
+    parser.add_argument(
         "--out-dir",
         type=str,
         default="results/sample-test",
@@ -50,7 +56,9 @@ if __name__ == "__main__":
     # Detect faces
     fd = FaceDetector(model=args.detector)
     if not os.path.isfile(f"{args.out_dir}/face_bboxes.pickle"):  # Detect faces
-        frame_ids, face_bboxes = fd.detect(args.src_path, args.out_dir, args.cps)
+        frame_ids, face_bboxes = fd.detect(
+            args.src_path, args.out_dir, args.cps, args.device
+        )
         fd.save_face_bboxes(args.out_dir, "face_bboxes.pickle")
     else:
         frame_ids, face_bboxes = fd.load_face_bboxes(args.out_dir, "face_bboxes.pickle")
