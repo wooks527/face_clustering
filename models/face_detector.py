@@ -14,6 +14,7 @@ import face_recognition as fr
 
 from tqdm import tqdm
 from models.retinaface import RetinaFace
+from models.yolov5_face import YOLOv5Face
 
 
 class FaceDetector:
@@ -93,6 +94,12 @@ class FaceDetector:
                 trained_model="./Pytorch_Retinaface/weights/mobilenet0.25_Final.pth",
                 cpu=use_cpu,
             )
+        elif self.model == "yolov5_face":
+            model = YOLOv5Face(
+                weight="./yolov5_face/weights/yolov5n-face.pt",
+                # weight="./yolov5_face/weights/yolov5n-0.5.pt",
+                device="cpu",
+            )
         else:
             assert False, "Not supported model."
         print("\nLoad Model...")
@@ -126,6 +133,8 @@ class FaceDetector:
                         face_locations[i] = (top, right, bottom, left)
             elif self.model == "retinaface":
                 face_locations = model.detect(img_raw=frame)
+            elif self.model == "yolov5_face":
+                face_locations = model.detect(image=frame)
             else:
                 assert False, "Not supported model."
 
