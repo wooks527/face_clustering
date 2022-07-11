@@ -88,7 +88,11 @@ class FaceDetector:
             model = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
         elif self.model == "retinaface":
             use_cpu = True if device == "cpu" else False
-            model = RetinaFace(cpu=use_cpu)
+            model = RetinaFace(
+                network="mobile0.25",
+                trained_model="./Pytorch_Retinaface/weights/mobilenet0.25_Final.pth",
+                cpu=use_cpu,
+            )
         else:
             assert False, "Not supported model."
         print("\nLoad Model...")
