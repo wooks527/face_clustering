@@ -10,6 +10,7 @@ import os
 import shutil
 import cv2
 import pickle
+import numpy as np
 import face_recognition as fr
 
 from tqdm import tqdm
@@ -57,8 +58,28 @@ class FaceDetector:
         with open(f"{out_dir}/{filename}", "wb") as f:
             f.write(pickle.dumps((self.frame_ids, self.face_bboxes)))
 
+    def draw_bbox(self, img: np.ndarray, face_bboxes: List) -> np.ndarray:
+        """Draw a box around the face.
+
+        Args:
+            img: original image
+            face_bboxes: face bounding boxes
+
+        Returns:
+            img: image with face bboxes
+        """
+        for face_bbox in face_bboxes:
+            (top, right, bottom, left) = face_bbox
+            cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)
+        return img
+
     def detect(
-        self, src_path: str, out_dir: str, cps: int, device: str
+        self,
+        src_path: str,
+        out_dir: str,
+        cps: int,
+        device: str,
+        verbose: int = 0,
     ) -> Tuple[List, List]:
         """Detect faces.
 
@@ -67,6 +88,9 @@ class FaceDetector:
             cps: capture per second
             out_dir: directory of results
             device: device for model
+            verbose: log level
+              - 0: save original images only
+              - 1: save original images and images with bboxes
 
         Returns:
             frame_ids: extracted frame IDs
@@ -75,6 +99,10 @@ class FaceDetector:
         if os.path.isdir(f"{out_dir}/captured_imgs"):
             shutil.rmtree(f"{out_dir}/captured_imgs")
         os.makedirs(f"{out_dir}/captured_imgs")
+        if verbose == 1:
+            if os.path.isdir(f"{out_dir}/captured_imgs_with_bbox"):
+                shutil.rmtree(f"{out_dir}/captured_imgs_with_bbox")
+            os.makedirs(f"{out_dir}/captured_imgs_with_bbox")
 
         src = cv2.VideoCapture(src_path)
         assert src.isOpened(), "Fail to load."
@@ -85,7 +113,9 @@ class FaceDetector:
         print("Video Information:")
         print(f"- Resolution: {int(width)}x{int(height)}, FPS: {fps}, CPS: {cps}")
 
-        if self.model == "harr":
+        if self.model in ("hog", "cnn"):
+            pass
+        elif self.model == "harr":
             model = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
         elif self.model == "retinaface":
             use_cpu = True if device == "cpu" else False
@@ -98,11 +128,10 @@ class FaceDetector:
             model = YOLOv5Face(
                 weight="./yolov5_face/weights/yolov5n-face.pt",
                 # weight="./yolov5_face/weights/yolov5n-0.5.pt",
-                device="cpu",
+                device=device,
             )
         else:
             assert False, "Not supported model."
-        print("\nLoad Model...")
 
         print("\nDetect Faces...")
         frame_ids, face_bboxes = [], []
@@ -148,6 +177,11 @@ class FaceDetector:
 
             img_path = f"{out_dir}/captured_imgs/frame-{frame_id}.jpg"
             cv2.imwrite(img_path, frame)
+
+            if verbose == 1:
+                img_path = f"{out_dir}/captured_imgs_with_bbox/frame-{frame_id}.jpg"
+                img_with_bboxes = self.draw_bbox(frame, face_locations)
+                cv2.imwrite(img_path, img_with_bboxes)
 
             pbar.update(1)
 

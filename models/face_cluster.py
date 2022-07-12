@@ -87,7 +87,10 @@ class FaceCluster:
             range_idxes = []
             for cur_idx in filtered_idxes:
                 cur_frame_id = int(self.faces[cur_idx].frame_id)
-                if cur_frame_id - prev_frame_id == fps:
+                if (
+                    cur_frame_id - prev_frame_id == fps
+                    or cur_frame_id - prev_frame_id == fps + 1
+                ):
                     range_idxes.append(cur_frame_id)
                 else:
                     cluster_info[cluster_id].append(range_idxes)
@@ -106,6 +109,9 @@ class FaceCluster:
                 cv2.imwrite(face_img_path, face_img)
 
                 prev_frame_id = cur_frame_id
+
+            if not cluster_info[cluster_id] and range_idxes:
+                cluster_info[cluster_id].append(range_idxes)
 
         out_path = f"{out_dir}/clustered_results.json"
         with open(out_path, "w", encoding="utf-8") as f:
