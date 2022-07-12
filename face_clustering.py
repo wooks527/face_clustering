@@ -1,4 +1,4 @@
-"""Face classes.
+"""Face clustering.
 
 - Author: Hyunwook Kim
 - Contact: wooks527@gmail.com
@@ -30,6 +30,12 @@ def get_args() -> argparse.Namespace:
         help="Face Detector (e.g. hog, cnn, harr)",
     )
     parser.add_argument(
+        "--encoder",
+        type=str,
+        default="dlib",
+        help="Face Encoder (e.g. dlib, arcface)",
+    )
+    parser.add_argument(
         "--cps",
         type=int,
         default=1,
@@ -38,7 +44,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--device",
         type=str,
-        default="cuda",
+        default="cpu",
         help="device for model",
     )
     parser.add_argument(
@@ -46,6 +52,12 @@ def get_args() -> argparse.Namespace:
         type=str,
         default="results/sample-test",
         help="directory of results",
+    )
+    parser.add_argument(
+        "--verbose",
+        type=int,
+        default=0,
+        help="log level",
     )
     return parser.parse_args()
 
@@ -57,14 +69,18 @@ if __name__ == "__main__":
     fd = FaceDetector(model=args.detector)
     if not os.path.isfile(f"{args.out_dir}/face_bboxes.pickle"):  # Detect faces
         frame_ids, face_bboxes = fd.detect(
-            args.src_path, args.out_dir, args.cps, args.device
+            src_path=args.src_path,
+            out_dir=args.out_dir,
+            cps=args.cps,
+            device=args.device,
+            verbose=args.verbose,
         )
         fd.save_face_bboxes(args.out_dir, "face_bboxes.pickle")
     else:
         frame_ids, face_bboxes = fd.load_face_bboxes(args.out_dir, "face_bboxes.pickle")
 
     # Encode faces
-    fe = FaceEncoder()
+    fe = FaceEncoder(model=args.encoder)
     if not os.path.isfile(f"{args.out_dir}/faces.pickle"):
         faces = fe.encode(frame_ids, face_bboxes, args.out_dir)
         fe.faces = faces

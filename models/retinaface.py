@@ -1,3 +1,9 @@
+"""RetinaFace class.
+
+- Author: Hyunwook Kim
+- Contact: wooks527@gmail.com
+"""
+
 from __future__ import print_function
 from typing import Dict, List, Tuple
 

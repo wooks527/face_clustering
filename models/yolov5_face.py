@@ -1,4 +1,4 @@
-"""Face cluster
+"""YOLOv5-Face class.
 
 - Author: Hyunwook Kim
 - Contact: wooks527@gmail.com
