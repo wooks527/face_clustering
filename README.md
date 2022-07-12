@@ -59,6 +59,17 @@ Start Clustering...
 - [yolov5-arcface-DBSCAN-cpu](results/sample/yolov5-arcface-DBSCAN-cpu/visualize_results.ipynb)
 - [yolov5-facenet-DBSCAN-cpu](results/sample/yolov5-facenet-DBSCAN-cpu/visualize_results.ipynb)
 
+### 3ProTV Video ([Video Link](https://youtu.be/CvX-p8jEfUk))
+
+- [hog-dlib-DBSCAN](results/3protv/hog-dlib-DBSCAN/visualize_results.ipynb)
+- [harr-dlib-DBSCAN](results/3protv/harr-dlib-DBSCAN/visualize_results.ipynb)
+
+- [retina-dlib-DBSCAN-cpu](results/3protv/retina-dlib-DBSCAN-cpu/visualize_results.ipynb)
+- [retina-arcface-DBSCAN-cpu](results/3protv/retina-arcface-DBSCAN-cpu/visualize_results.ipynb)
+
+- [yolov5-dlib-DBSCAN-cpu](results/3protv/yolov5-dlib-DBSCAN-cpu/visualize_results.ipynb)
+- [yolov5-arcface-DBSCAN-cpu](results/3protv/yolov5-arcface-DBSCAN-cpu/visualize_results.ipynb)
+
 ## Models
 
 - Face Detection
